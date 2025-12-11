@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+
+
+df = pd.read_csv("premier_lig_bitiricilik_overall.csv")
+
+
+df.columns = df.columns.str.strip()
+
+sayisal_sutunlar = ['Gol', 'Asist', 'xG', 'Dakika', 'Mac'] 
+for kol in sayisal_sutunlar:
+    if kol in df.columns:
+       
+        df[kol] = pd.to_numeric(df[kol], errors='coerce')
+
+
+df.fillna(0, inplace=True)
+
+df.drop(columns=['Yas'], inplace=True, errors='ignore')
+
+
+kara_liste = [
+    "Nick Pope", "Marco Bizot", "Harry Maguire", "Joe Gomez", "Michael Keane", 
+    "Daniel Ballard", "Timothy Castagne", "Séamus Coleman", "Igor", 
+    "Kevin Danso", "Benoît Badiashile", "Omar Alderete"
+]
+df_clean = df[~df["Oyuncu"].isin(kara_liste)].copy()
+
+
+df_clean.drop_duplicates(subset=['Oyuncu'], keep='last', inplace=True)
+
+
+df_clean = df_clean[(df_clean["Dakika"] > 500) & (df_clean["Gol"] > 0)]
+
+
+df_clean["Skor_Katkisi"] = df_clean["Gol"] + df_clean["Asist"]
+
+df_clean = df_clean.round(2)
+print(f"Başlangıç: {len(df)} - Bitiş: {len(df_clean)} oyuncu.")
+
+df_clean.to_csv("futbolcular_final.csv", index=False)
+print("Dosya güvenli modda işlendi ve kaydedildi.")
