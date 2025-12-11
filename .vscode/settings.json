@@ -1,0 +1,20 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": false
+                },
+                "connectionTimeoutMillis": 10000,
+                "max": 5
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "ep-lingering-surf-ahm0y6c2-pooler.c-3.us-east-1.aws.neon.tech",
+            "driver": "PostgreSQL",
+            "name": "AttackScore AI",
+            "connectString": "postgresql://neondb_owner:npg_p6Ek7LwADjHY@ep-lingering-surf-ahm0y6c2-pooler.c-3.us-east-1.aws.neon.tech:5432/neondb?sslmode=require",
+            "group": "database"
+        }
+    ]
+}
