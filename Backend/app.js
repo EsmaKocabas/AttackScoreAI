@@ -1,14 +1,14 @@
 //express yapısının oluşturulması
-
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-const playerRoutes = require("./src/api/routes/player.routes");
-
+import playerRoutes from "./src/api/routes/player.routes.js";
 app.use("/api/players", playerRoutes);
+import fixtureRoutes from "./src/api/routes/fixture.routes.js";
+app.use("/api/fixtures", fixtureRoutes);
 
-module.exports = app;   
+export default app;

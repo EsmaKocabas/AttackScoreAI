@@ -9,3 +9,4 @@ export const getPlayer = async (req, res) => {
   const player = await playerService.getPlayerById(req.params.id);
   res.json(player);
 };
+
