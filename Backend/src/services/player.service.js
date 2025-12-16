@@ -1,6 +1,5 @@
 import playerRepository from "../repositories/player.repository.js";
 
-
 class PlayerService {
   async getAllPlayers() {
     return await playerRepository.findAll();

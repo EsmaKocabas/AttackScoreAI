@@ -2,6 +2,7 @@
 import playerRoutes from './src/api/routes/player.routes.js';
 import predictRoutes from './src/api/routes/predict.routes.js';
 import authRoutes from './src/api/routes/auth.routes.js';
+import fixtureRoutes from './src/api/routes/fixture.routes.js';
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config'; 
@@ -17,6 +18,7 @@ app.use(cors());
 app.use("/api/players", playerRoutes);
 app.use("/api/prediction", predictRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/fixtures", fixtureRoutes);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
