@@ -1,8 +1,8 @@
-import fplFixtureApi from "../integrations/external/fplFixture.api.js";
+import externalFixtureApi from "../integrations/external/fplFixture.api.js";
     
 class FixtureService {
   async getUpcomingFplFixtures() {
-    return await fplFixtureApi.getExternalUpcomingFixtures();
+    return await externalFixtureApi.getExternalUpcomingFixtures();
   }
 }
 
