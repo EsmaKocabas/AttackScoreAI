@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package prediction;
+
+service PredictionService {
+  rpc PredictGoalKing (PredictionRequest) returns (PredictionResponse);
+}
+
+message PredictionRequest {
+  int32 oyuncuId = 1;
+}
+
+message PredictionResponse {
+  double golKraliOlasiligi = 1;
+  string model = 2;
+}

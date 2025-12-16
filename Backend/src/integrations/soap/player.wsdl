@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="PlayerService"
+  targetNamespace="http://localhost:8000/wsdl"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:tns="http://localhost:8000/wsdl"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <types>
+    <xsd:schema targetNamespace="http://localhost:8000/wsdl">
+      <xsd:element name="GetPlayerByIdRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="oyuncuId" type="xsd:int"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+
+      <xsd:element name="GetPlayerByIdResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="success" type="xsd:boolean"/>
+            <xsd:element name="oyuncuId" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="adsoyad" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="kayitTarihi" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="takimId" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="performansTemel" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="performansDetay" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="performansTahmin" type="xsd:string" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </types>
+
+  <message name="GetPlayerByIdInput">
+    <part name="parameters" element="tns:GetPlayerByIdRequest"/>
+  </message>
+
+  <message name="GetPlayerByIdOutput">
+    <part name="parameters" element="tns:GetPlayerByIdResponse"/>
+  </message>
+
+  <portType name="PlayerPortType">
+    <operation name="GetPlayerById">
+      <input message="tns:GetPlayerByIdInput"/>
+      <output message="tns:GetPlayerByIdOutput"/>
+    </operation>
+  </portType>
+
+  <binding name="PlayerBinding" type="tns:PlayerPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="GetPlayerById">
+      <soap:operation soapAction="GetPlayerById"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+  </binding>
+
+  <service name="PlayerService">
+    <port name="PlayerPort" binding="tns:PlayerBinding">
+      <soap:address location="http://localhost:8000/wsdl"/>
+    </port>
+  </service>
+</definitions>
