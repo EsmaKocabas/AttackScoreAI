@@ -10,10 +10,12 @@ import {
 const router = express.Router();
 
 router.get("/", getPlayers);
-router.get("/:id", getPlayer);
 
-// SQL fonksiyonlarını kullanan analytics endpoint'leri
+// SQL fonksiyonlarını kullanan analytics endpoint'leri (önce spesifik route'lar)
 router.get("/:id/efficiency", getPlayerEfficiency);
 router.get("/:id/finishing-rate", getPlayerFinishingRate);
+
+// Genel oyuncu detay route'u (en son)
+router.get("/:id", getPlayer);
 
 export default router;

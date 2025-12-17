@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 
 interface Player {
@@ -12,7 +12,6 @@ interface Player {
 const Players = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -39,10 +38,10 @@ const Players = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {players.map((player) => (
-          <div
+          <Link
             key={player.oyuncuid}
-            onClick={() => navigate(`/players/${player.oyuncuid}`)}
-            className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
+            to={`/players/${player.oyuncuid}`}
+            className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition block"
           >
             <h2 className="text-lg font-semibold mb-2">
               {player.adsoyad}
@@ -55,7 +54,7 @@ const Players = () => {
             <div className="mt-4 text-blue-600 text-sm font-medium">
               Detayları Gör →
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

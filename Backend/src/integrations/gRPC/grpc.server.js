@@ -11,24 +11,24 @@ const packageDef = protoLoader.loadSync(PROTO_PATH);
 const grpcObject = grpc.loadPackageDefinition(packageDef);
 const predictionPackage = grpcObject.prediction;
 
-function PredictGoalKing(call, callback) {
-  // MOCK ML HESAPLAMASI
-  const possibilityofgolking = Number(
-    (Math.random() * (0.85 - 0.15) + 0.15).toFixed(2)
+function CalculatePlayerRating(call, callback) {
+  // MOCK ML HESAPLAMASI - Futbolcu Rating (0-100 arası)
+  const playerRating = Number(
+    (Math.random() * (95 - 50) + 50).toFixed(1)
   );
 
   callback(null, {
-    golKraliOlasiligi: possibilityofgolking,
-    model: "ML_MODEL_V1",
+    rating: playerRating,
+    model: "RATING_MODEL_V1",
   });
-    }
+}
 
 function startServer() {
   const server = new grpc.Server();
 
   server.addService(
     predictionPackage.PredictionService.service,
-    { PredictGoalKing }
+    { CalculatePlayerRating }
   );    
 
   server.bindAsync(

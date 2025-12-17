@@ -11,15 +11,16 @@ class PredictionService {
 
     // gRPC ÇAĞRISI
     const grpcResult = await new Promise((resolve, reject) => {
-      grpcClient.PredictGoalKing({ oyuncuId }, (err, response) => {
+      grpcClient.CalculatePlayerRating({ oyuncuId }, (err, response) => {
         if (err) return reject(err);
         resolve(response);
       });
     });
 
-    // DB’ye kaydet
-    const prediction = await predictionRepository.savePrediction(oyuncuId, grpcResult.golKraliOlasiligi);
-    return prediction;
+    // DB'ye kaydet (rating 0-100 arası, veritabanında 0-1 aralığına normalize ediyoruz)
+    const normalizedRating = grpcResult.rating / 100;
+    const prediction = await predictionRepository.savePrediction(oyuncuId, normalizedRating);
+    return { ...prediction, rating: grpcResult.rating, source: grpcResult.model };
   }
 
   async getPredictionHistoryForPlayer(oyuncuId) {

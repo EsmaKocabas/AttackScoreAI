@@ -11,7 +11,8 @@ interface PredictionItem {
   tahminid: number | string;
   oyuncuid: number;
   adsoyad: string;
-  golkraliolasiligi: number | string;
+  rating: number | string;
+  golkraliolasiligi?: number | string; // Backward compatibility
   tahmintarihi: string;
 }
 
@@ -62,7 +63,7 @@ const Prediction = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">
-        Gol Kralı Tahmin Geçmişi
+        Oyuncu Rating Geçmişi
       </h1>
 
       {/* Oyuncu seçimi */}
@@ -94,7 +95,7 @@ const Prediction = () => {
         disabled={!selectedPlayerId || loadingHistory}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
       >
-        {loadingHistory ? "Yükleniyor..." : "Tahmin Geçmişini Göster"}
+        {loadingHistory ? "Yükleniyor..." : "Rating Geçmişini Göster"}
       </button>
 
       {/* Geçmiş tablosu */}
@@ -104,7 +105,7 @@ const Prediction = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-3 text-left">Tahmin ID</th>
-                <th className="p-3 text-left">Olasılık</th>
+                <th className="p-3 text-left">Rating</th>
                 <th className="p-3 text-left">Tarih</th>
               </tr>
             </thead>
@@ -113,10 +114,7 @@ const Prediction = () => {
                 <tr key={h.tahminid} className="border-t">
                   <td className="p-3">{h.tahminid}</td>
                   <td className="p-3">
-                    %
-                    {(
-                      Number(h.golkraliolasiligi) * 100
-                    ).toFixed(1)}
+                    {h.rating ? Number(h.rating).toFixed(1) : (h.golkraliolasiligi ? (Number(h.golkraliolasiligi) * 100).toFixed(1) : 'N/A')}/100
                   </td>
                   <td className="p-3 text-gray-500">
                     {new Date(h.tahmintarihi).toLocaleString(
@@ -132,7 +130,7 @@ const Prediction = () => {
 
       {!loadingHistory && history.length === 0 && selectedPlayerId && (
         <div className="mt-4 text-gray-500">
-          Bu oyuncu için henüz tahmin geçmişi bulunamadı.
+          Bu oyuncu için henüz rating geçmişi bulunamadı.
         </div>
       )}
     </div>
