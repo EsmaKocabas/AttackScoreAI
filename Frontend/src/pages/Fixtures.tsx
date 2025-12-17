@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getUpcomingFixtures } from "../api/fixture.api";
 
+// Backend FPL fixture response:
+// { kickoff_time: string, homeTeam: string, awayTeam: string, gameweek: number }
 interface Fixture {
-  id: number;
+  kickoff_time: string;
   homeTeam: string;
   awayTeam: string;
-  kickoff: string;
+  gameweek: number;
 }
 
 const Fixtures = () => {
@@ -29,9 +31,9 @@ const Fixtures = () => {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fixtures.map(match => (
+        {fixtures.map((match) => (
           <div
-            key={match.id}
+            key={`${match.gameweek}-${match.homeTeam}-${match.awayTeam}-${match.kickoff_time}`}
             className="bg-white rounded-xl shadow p-4 flex justify-between items-center"
           >
             <span className="font-semibold">
@@ -47,7 +49,7 @@ const Fixtures = () => {
             </span>
 
             <span className="text-sm text-gray-400">
-              {new Date(match.kickoff).toLocaleString("tr-TR")}
+              {new Date(match.kickoff_time).toLocaleString("tr-TR")}
             </span>
           </div>
         ))}

@@ -13,6 +13,9 @@ class AuthService{
         return await authRepository.createUser(user);
     }
 
+    async getAllUsers(){
+        return await authRepository.getAllUsers();
+    }
 }
 
 export default new AuthService();

@@ -27,6 +27,10 @@ const Navbar = () => {
           Oyuncular
         </Link>
 
+        <Link to="/prediction" className="hover:text-blue-600">
+          Tahminler
+        </Link>
+
         {user ? (
           <>
             {/* ADMIN LINK */}

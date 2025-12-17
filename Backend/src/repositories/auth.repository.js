@@ -26,7 +26,12 @@ class AuthRepository {
         );
         return rows[0];
     }
-
+    async getAllUsers() {
+        const { rows } = await db.query(
+            `SELECT * FROM appkullanicilar`
+        );
+        return rows;
+    }
 }
 
 export default new AuthRepository();    
