@@ -3,14 +3,14 @@ syntax = "proto3";
 package prediction;
 
 service PredictionService {
-  rpc PredictGoalKing (PredictionRequest) returns (PredictionResponse);
+  rpc CalculatePlayerRating (PlayerRatingRequest) returns (PlayerRatingResponse);
 }
 
-message PredictionRequest {
+message PlayerRatingRequest {
   int32 oyuncuId = 1;
 }
 
-message PredictionResponse {
-  double golKraliOlasiligi = 1;
+message PlayerRatingResponse {
+  double rating = 1;
   string model = 2;
 }

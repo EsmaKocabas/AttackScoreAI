@@ -18,7 +18,7 @@ class PredictionRepository {
       SELECT 
         tahminid,
         oyuncuid,
-        golkraliolasiligi,
+        (golkraliolasiligi * 100) AS rating,
         tahmintarihi
       FROM tahminler
       WHERE oyuncuid = $1
@@ -37,7 +37,7 @@ class PredictionRepository {
       SELECT 
         tahminid,
         oyuncuid,
-        golkraliolasiligi,
+        (golkraliolasiligi * 100) AS rating,
         tahmintarihi
       FROM tahminler
       WHERE oyuncuid = $1
@@ -54,7 +54,7 @@ class PredictionRepository {
         t.tahminid,
         t.oyuncuid,
         o.adsoyad,
-        t.golkraliolasiligi,
+        (t.golkraliolasiligi * 100) AS rating,
         t.tahmintarihi
       FROM tahminler t
       JOIN oyuncular o ON o.oyuncuid = t.oyuncuid
@@ -70,7 +70,7 @@ class PredictionRepository {
         t.tahminid,
         t.oyuncuid,
         o.adsoyad,
-        t.golkraliolasiligi,
+        (t.golkraliolasiligi * 100) AS rating,
         t.tahmintarihi
       FROM tahminler t
       JOIN oyuncular o ON o.oyuncuid = t.oyuncuid

@@ -7,8 +7,23 @@ export const getPlayers = async (req, res) => {
 };
 
 export const getPlayer = async (req, res) => {
-  const player = await playerService.getPlayerById(req.params.id);
-  res.json(player);
+  try {
+    const player = await playerService.getPlayerById(req.params.id);
+    
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        error: "Oyuncu bulunamadı",
+      });
+    }
+    
+    return res.status(200).json(player);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Oyuncu bilgisi alınamadı",
+    });
+  }
 };
 
 // Yeni: oyuncu verimlilik skoru

@@ -6,7 +6,8 @@ interface Prediction {
   tahminid: number;
   oyuncuid: number;
   adsoyad: string;
-  golkraliolasiligi: number;
+  rating: number;
+  golkraliolasiligi?: number; // Backward compatibility
   tahmintarihi: string;
 }
 
@@ -38,7 +39,7 @@ const AdminDashboard = () => {
       <AdminSidebar />
       <div className="flex-1 p-6">
         <h1 className="text-2xl font-bold mb-6">
-          Admin – Prediction Takibi
+          Admin – Rating Takibi
         </h1>
 
         <div className="overflow-x-auto bg-white rounded-xl shadow">
@@ -46,7 +47,7 @@ const AdminDashboard = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-3 text-left">Oyuncu</th>
-                <th className="p-3 text-left">Olasılık</th>
+                <th className="p-3 text-left">Rating</th>
                 <th className="p-3 text-left">Tarih</th>
               </tr>
             </thead>
@@ -57,7 +58,7 @@ const AdminDashboard = () => {
                     {p.adsoyad}
                   </td>
                   <td className="p-3">
-                    %{(p.golkraliolasiligi * 100).toFixed(1)}
+                    {p.rating ? p.rating.toFixed(1) : (p.golkraliolasiligi ? (p.golkraliolasiligi * 100).toFixed(1) : 'N/A')}/100
                   </td>
                   <td className="p-3 text-gray-500">
                     {new Date(p.tahmintarihi).toLocaleString("tr-TR")}

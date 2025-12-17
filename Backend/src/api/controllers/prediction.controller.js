@@ -31,7 +31,36 @@ export const createPrediction = async (req, res) => {
 };
 
 /* ======================================================
-   2️⃣ OYUNCU BAZLI PREDICTION GEÇMİŞİ
+   2️⃣ OYUNCU İÇİN YENİ RATING OLUŞTUR VE DÖNDÜR
+   GET /api/predictions/player/:playerId
+====================================================== */
+export const getPredictionForPlayer = async (req, res) => {
+  try {
+    const { playerId } = req.params;
+
+    if (!playerId) {
+      return res.status(400).json({
+        success: false,
+        error: "Oyuncu ID zorunludur",
+      });
+    }
+
+    const prediction = await PredictionService.predictForPlayer(playerId);
+
+    return res.status(200).json({
+      success: true,
+      data: prediction,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/* ======================================================
+   3️⃣ OYUNCU BAZLI PREDICTION GEÇMİŞİ
    GET /api/predictions/history/player/:playerId
 ====================================================== */
 export const getPredictionHistoryForPlayer = async (req, res) => {

@@ -43,7 +43,7 @@ const AdminSidebar = () => {
             }`
           }
         >
-          Tahminler
+          Ratingler
         </NavLink>
 
         <NavLink
