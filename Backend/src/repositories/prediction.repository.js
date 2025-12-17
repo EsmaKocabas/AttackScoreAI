@@ -1,15 +1,33 @@
 import db from "../database/index.js";
 
 class PredictionRepository {
+  /**
+   * Tahmini veritabanına kaydeder.
+   * Artık doğrudan INSERT yerine sp_TahminKaydet prosedürünü kullanıyoruz.
+   */
   async savePrediction(oyuncuId, golKraliOlasiligi) {
+    // Stored procedure ile upsert
+    await db.query("CALL sp_TahminKaydet($1, $2)", [
+      oyuncuId,
+      golKraliOlasiligi,
+    ]);
+
+    // Son kaydı geri döndür (servis/frontende uyum için)
     const { rows } = await db.query(
       `
-      INSERT INTO tahminler (oyuncuid, golkraliolasiligi, tahmintarihi)
-      VALUES ($1, $2, NOW())
-      RETURNING *
+      SELECT 
+        tahminid,
+        oyuncuid,
+        golkraliolasiligi,
+        tahmintarihi
+      FROM tahminler
+      WHERE oyuncuid = $1
+      ORDER BY tahmintarihi DESC
+      LIMIT 1
       `,
-      [oyuncuId, golKraliOlasiligi]
+      [oyuncuId]
     );
+
     return rows[0];
   }
 

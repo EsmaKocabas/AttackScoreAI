@@ -6,6 +6,7 @@ interface Player {
   oyuncuid: number;
   adsoyad: string;
   takimid: number;
+  takimadi?: string;
   kayittarihi?: string;
 }
 
@@ -112,7 +113,7 @@ const PlayerDetail = () => {
         </h1>
 
         <p className="text-gray-600">
-          Takım ID: {player.takimid}
+          Takım: {player.takimadi ?? `ID: ${player.takimid}`}
         </p>
 
         {player.kayittarihi && (
