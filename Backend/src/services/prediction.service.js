@@ -21,6 +21,14 @@ class PredictionService {
     const prediction = await predictionRepository.savePrediction(oyuncuId, grpcResult.golKraliOlasiligi);
     return prediction;
   }
+
+  async getPredictionHistoryForPlayer(oyuncuId) {
+    return await predictionRepository.getPredictionsByPlayerId(oyuncuId);
+  }
+
+  async getAllPredictions() {
+    return await predictionRepository.getAllPredictions();
+  }
 }
 
 export default new PredictionService();
