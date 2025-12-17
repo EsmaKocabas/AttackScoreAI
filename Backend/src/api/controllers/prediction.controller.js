@@ -1,22 +1,39 @@
 import PredictionService from "../../services/prediction.service.js";
 
+/* ======================================================
+   1️⃣ OYUNCU İÇİN YENİ PREDICTION OLUŞTUR
+   POST /api/predictions
+   Body: { playerId }
+====================================================== */
 export const createPrediction = async (req, res) => {
-    try{
-        const { oyuncuid } = req.body;
+  try {
+    const { playerId } = req.body;
 
-        if(!oyuncuid){
-            return res.status(400).json({ error: "Oyuncu ID zorunludur" });
-        }
-
-        const prediction = await PredictionService.predictForPlayer(oyuncuid);
-        return res.status(201).json(prediction);
-        
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
+    if (!playerId) {
+      return res.status(400).json({
+        success: false,
+        error: "Oyuncu ID zorunludur",
+      });
     }
 
+    const prediction = await PredictionService.predictForPlayer(playerId);
+
+    return res.status(201).json({
+      success: true,
+      data: prediction,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 };
 
+/* ======================================================
+   2️⃣ OYUNCU BAZLI PREDICTION GEÇMİŞİ
+   GET /api/predictions/history/player/:playerId
+====================================================== */
 export const getPredictionHistoryForPlayer = async (req, res) => {
   try {
     const { playerId } = req.params;
@@ -28,8 +45,9 @@ export const getPredictionHistoryForPlayer = async (req, res) => {
       });
     }
 
-    const history =
-      await PredictionService.getPredictionHistoryForPlayer(playerId);
+    const history = await PredictionService.getPredictionHistoryForPlayer(
+      playerId
+    );
 
     return res.status(200).json({
       success: true,
@@ -44,11 +62,54 @@ export const getPredictionHistoryForPlayer = async (req, res) => {
   }
 };
 
+/* ======================================================
+   3️⃣ ADMIN – TÜM PREDICTION’LAR (FİLTRESİZ)
+   GET /api/predictions/admin/all
+====================================================== */
 export const getAllPredictions = async (req, res) => {
   try {
     const predictions = await PredictionService.getAllPredictions();
-    return res.status(200).json(predictions);
+
+    return res.status(200).json({
+      success: true,
+      count: predictions.length,
+      data: predictions,
+    });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/* ======================================================
+   4️⃣ ADMIN – TÜM PREDICTION’LAR (FİLTRELİ)
+   GET /api/predictions/admin/filtered
+   Query Params:
+     - oyuncuAdi
+     - startDate
+     - endDate
+====================================================== */
+export const getAllPredictionsFiltered = async (req, res) => {
+  try {
+    const { oyuncuAdi, startDate, endDate } = req.query;
+
+    const predictions = await PredictionService.getAllPredictionsFiltered({
+      oyuncuAdi,
+      startDate,
+      endDate,
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: predictions.length,
+      data: predictions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };

@@ -29,6 +29,10 @@ class PredictionService {
   async getAllPredictions() {
     return await predictionRepository.getAllPredictions();
   }
+  async getAllPredictionsFiltered(filters) {
+    return await predictionRepository.getAllPredictionsFiltered(filters);
+  }
+  
 }
 
 export default new PredictionService();

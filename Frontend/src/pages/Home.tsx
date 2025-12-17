@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 function Home() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto">
@@ -11,17 +14,17 @@ function Home() {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div onClick={() => navigate("/players")} className="bg-blue-50 rounded-lg p-4 cursor-pointer">
               <h2 className="text-xl font-semibold text-blue-800 mb-2">Oyuncular</h2>
               <p className="text-gray-600">Oyuncu detaylarını ve istatistiklerini görüntüleyin</p>
             </div>
             
-            <div className="bg-green-50 rounded-lg p-4">
+            <div onClick={() => navigate("/fixtures")} className="bg-green-50 rounded-lg p-4 cursor-pointer">
               <h2 className="text-xl font-semibold text-green-800 mb-2">Maçlar</h2>
               <p className="text-gray-600">Yaklaşan maçları ve fikstürleri inceleyin</p>
             </div>
             
-            <div className="bg-purple-50 rounded-lg p-4">
+            <div onClick={() => navigate("/prediction")} className="bg-purple-50 rounded-lg p-4 cursor-pointer">
               <h2 className="text-xl font-semibold text-purple-800 mb-2">Tahminler</h2>
               <p className="text-gray-600">AI destekli gol krallığı tahminleri alın</p>
             </div>

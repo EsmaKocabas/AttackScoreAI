@@ -37,3 +37,17 @@ export const login = async (data: {
 
   return response.data;
 };
+
+/**
+ * (Future) ADMIN – Get all users
+ * Expects backend endpoint: GET /api/auth/users
+ */
+export const getAllUsers = async () => {
+  try {
+    const response = await axiosInstance.get("/api/auth/users");
+    return response.data;
+  } catch (error) {
+    console.error("Kullanıcı listesi alınamadı:", error);
+    return [];
+  }
+};

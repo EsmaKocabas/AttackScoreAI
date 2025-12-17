@@ -45,6 +45,44 @@ class PredictionRepository {
     return rows;
   }
   
+
+  async getAllPredictionsFiltered({ oyuncuAdi, startDate, endDate }) {
+    let query = `
+      SELECT 
+        t.tahminid,
+        t.oyuncuid,
+        o.adsoyad,
+        t.golkraliolasiligi,
+        t.tahmintarihi
+      FROM tahminler t
+      JOIN oyuncular o ON o.oyuncuid = t.oyuncuid
+      WHERE 1=1
+    `;
+  
+    const values = [];
+    let index = 1;
+  
+    if (oyuncuAdi) {
+      query += ` AND LOWER(o.adsoyad) LIKE $${index++}`;
+      values.push(`%${oyuncuAdi.toLowerCase()}%`);
+    }
+  
+    if (startDate) {
+      query += ` AND t.tahmintarihi >= $${index++}`;
+      values.push(startDate);
+    }
+  
+    if (endDate) {
+      query += ` AND t.tahmintarihi <= $${index++}`;
+      values.push(endDate);
+    }
+  
+    query += ` ORDER BY t.tahmintarihi DESC`;
+  
+    const { rows } = await db.query(query, values);
+    return rows;
+  }
+  
 }
 
 
