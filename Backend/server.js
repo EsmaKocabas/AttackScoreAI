@@ -10,6 +10,9 @@ import 'dotenv/config';
 // SOAP sunucusunu başlat
 import './src/integrations/soap/soap.server.js';
 
+// gRPC sunucusunu başlat
+import './src/integrations/gRPC/grpc.server.js';
+
 // Uygulama, aynı klasördeki `app.js` dosyasında tanımlı
 const app = express();
 app.use(express.json());
@@ -17,6 +20,7 @@ app.use(cors());
 
 app.use("/api/players", playerRoutes);
 app.use("/api/prediction", predictRoutes);
+app.use("/api/predictions", predictRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/fixtures", fixtureRoutes);
 const PORT = process.env.PORT || 3000;

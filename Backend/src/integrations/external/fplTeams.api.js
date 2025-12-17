@@ -20,5 +20,7 @@ async function getExternalTeams() {
   }
 }
 
-export default new fplTeamsApi();
+export default {
+  getExternalTeams,
+};
 
