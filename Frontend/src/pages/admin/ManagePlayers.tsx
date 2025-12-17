@@ -6,6 +6,7 @@ interface Player {
   oyuncuid: number;
   adsoyad: string;
   takimid: number;
+  takimadi?: string;
 }
 
 const ManagePlayers = () => {
@@ -38,7 +39,7 @@ const ManagePlayers = () => {
                 <tr>
                   <th className="p-3 text-left">ID</th>
                   <th className="p-3 text-left">Oyuncu</th>
-                  <th className="p-3 text-left">Takım ID</th>
+                  <th className="p-3 text-left">Takım</th>
                 </tr>
               </thead>
               <tbody>
@@ -46,7 +47,9 @@ const ManagePlayers = () => {
                   <tr key={p.oyuncuid} className="border-t">
                     <td className="p-3">{p.oyuncuid}</td>
                     <td className="p-3 font-medium">{p.adsoyad}</td>
-                    <td className="p-3 text-gray-500">{p.takimid}</td>
+                    <td className="p-3 text-gray-500">
+                      {p.takimadi ?? `ID: ${p.takimid}`}
+                    </td>
                   </tr>
                 ))}
               </tbody>
