@@ -21,6 +21,8 @@ export const predictManual = async (data: {
   xg: number;
   sut90: number;
   isabetliSut90: number;
+  oyuncuAdi?: string;
+  oyuncuId?: number; 
 }) => {
   const res = await axiosInstance.post("/api/predictions/manual", data);
   return res.data;

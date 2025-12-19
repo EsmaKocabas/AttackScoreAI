@@ -10,7 +10,7 @@ import 'dotenv/config';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROTO_PATH = path.join(__dirname, "prediction.proto");
 const PORT = process.env.GRPC_PORT || 8001;
-const ATTACK_SCORE_API_URL = process.env.ATTACK_SCORE_API_URL || "http://localhost:5000";
+const ATTACK_SCORE_API_URL = process.env.ATTACK_SCORE_API_URL || "http://localhost:5001";
 
 const packageDef = protoLoader.loadSync(PROTO_PATH);
 const grpcObject = grpc.loadPackageDefinition(packageDef);

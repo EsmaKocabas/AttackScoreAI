@@ -37,6 +37,8 @@ const Prediction = () => {
   // 🆕 YENİ: Loading ve error state'leri eklendi
   const [loadingPrediction, setLoadingPrediction] = useState(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
+  // 🆕 YENİ: Tahmin kaydedilme durumu
+  const [predictionSaved, setPredictionSaved] = useState<boolean | null>(null);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -55,38 +57,34 @@ const Prediction = () => {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    setSelectedPlayerId(value ? Number(value) : null);
+    const playerId = value ? Number(value) : null;
+    setSelectedPlayerId(playerId);
     setHistory([]);
-  };
-
-  // Oyuncu adı için: sadece harf ve boşluk kabul et (noktalama ve sayı yok)
-  const handlePlayerNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const raw = e.target.value;
-    const sanitized = raw.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, "");
-    setPlayerName(sanitized);
+    // Seçilen oyuncunun adını bul
+    if (playerId) {
+      const selectedPlayer = players.find(p => p.oyuncuid === playerId);
+      setPlayerName(selectedPlayer?.adsoyad || "");
+    } else {
+      setPlayerName("");
+    }
   };
 
   // Tüm alanlar dolu mu kontrolü
-  // 🔄 DEĞİŞTİRİLDİ: macDakikasi yerine mac ve dakika ayrı kontrol ediliyor
   const isManualFormValid =
     mac.trim() !== "" &&
     dakika.trim() !== "" &&
-    // ❌ ESKİ: macDakikasi.trim() !== "" && // Silindi
     xg.trim() !== "" &&
     sut90.trim() !== "" &&
-    playerName.trim() !== "" &&
+    selectedPlayerId !== null &&
     isabetliSut90.trim() !== "";
 
-  // 🔄 TAMAMEN DEĞİŞTİRİLDİ: Eski basit formül kaldırıldı, gerçek ML API'ye bağlandı
-  // Attack Score API ile gerçek ML modeli kullanarak rating tahmini
   const handleManualPredict = async () => {
     if (!isManualFormValid) return;
 
     setLoadingPrediction(true);
     setPredictionError(null);
     setManualRating(null);
+    setPredictionSaved(null);
 
     try {
       const response = await predictManual({
@@ -95,17 +93,20 @@ const Prediction = () => {
         xg: Number(xg) || 0,
         sut90: Number(sut90) || 0,
         isabetliSut90: Number(isabetliSut90) || 0,
+        oyuncuId: selectedPlayerId || undefined, // Seçilen oyuncu ID'si
+        oyuncuAdi: playerName.trim() || undefined, // Oyuncu adı (opsiyonel)
       });
 
       if (response.success && response.data) {
         setManualRating(response.data.rating);
         setPredictionError(null);
+        setPredictionSaved(response.data.saved || false);
       } else {
         setPredictionError("Tahmin yapılamadı");
+        setPredictionSaved(null);
       }
     } catch (error: any) {
       console.error("Rating tahmini hatası:", error);
-      // 🔄 DEĞİŞTİRİLDİ: Hata mesajını daha detaylı göster
       const errorMessage = 
         error?.response?.data?.error || 
         error?.message || 
@@ -113,38 +114,10 @@ const Prediction = () => {
         "Rating tahmini yapılırken bir hata oluştu";
       setPredictionError(errorMessage);
       setManualRating(null);
-      // ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
-      // setPredictionError(
-      //   error?.response?.data?.error || "Rating tahmini yapılırken bir hata oluştu"
-      // );
     } finally {
       setLoadingPrediction(false);
     }
   };
-
-  // ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
-  // // Basit bir örnek rating hesaplama (UI odaklı, backend'e bağlanabilir)
-  // const handleManualPredict = () => {
-  //   if (!isManualFormValid) return;
-  //
-  //   const mac = Number(macDakikasi) || 0;
-  //   const xgVal = Number(xg) || 0;
-  //   const sut = Number(sut90) || 0;
-  //   const isabetli = Number(isabetliSut90) || 0;
-  //
-  //   // Örnek, çok basit ve sadece demo amaçlı formül
-  //   let score =
-  //     xgVal * 25 +
-  //     sut * 10 +
-  //     isabetli * 15 +
-  //     (mac > 0 ? Math.min(mac, 90) * 0.2 : 0);
-  //
-  //   // 0-100 aralığına sıkıştır
-  //   if (score > 100) score = 100;
-  //   if (score < 0) score = 0;
-  //
-  //   setManualRating(Number(score.toFixed(1)));
-  // };
 
   const handleLoadHistory = async () => {
     if (!selectedPlayerId) return;
@@ -167,16 +140,14 @@ const Prediction = () => {
       <h1 className="text-2xl font-bold mb-6">Tahminler</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* SOL TARAF: Oyuncu rating geçmişi */}
+        {/* SOL TARAF: Rating tahmini formu */}
         <div className="bg-white rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-4">Oyuncu Rating Geçmişi</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            Rating Tahmini
+          </h2>
 
-          {/* Oyuncu seçimi */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
-              Oyuncu Seç
-            </label>
-            {loadingPlayers ? (
+          <div className="space-y-4">
+                 {loadingPlayers ? (
               <div>Oyuncular yükleniyor...</div>
             ) : (
               <select
@@ -192,76 +163,6 @@ const Prediction = () => {
                 ))}
               </select>
             )}
-          </div>
-
-          {/* Geçmişi yükle butonu */}
-          <button
-            onClick={handleLoadHistory}
-            disabled={!selectedPlayerId || loadingHistory}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-          >
-            {loadingHistory ? "Yükleniyor..." : "Rating Geçmişini Göster"}
-          </button>
-
-          {/* Geçmiş tablosu */}
-          {history.length > 0 && (
-            <div className="mt-6 overflow-x-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-3 text-left">Tahmin ID</th>
-                    <th className="p-3 text-left">Rating</th>
-                    <th className="p-3 text-left">Tarih</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((h) => (
-                    <tr key={h.tahminid} className="border-t">
-                      <td className="p-3">{h.tahminid}</td>
-                      <td className="p-3">
-                        {h.rating
-                          ? Number(h.rating).toFixed(1)
-                          : h.golkraliolasiligi
-                          ? (Number(h.golkraliolasiligi) * 100).toFixed(1)
-                          : "N/A"}
-                        /100
-                      </td>
-                      <td className="p-3 text-gray-500">
-                        {new Date(h.tahmintarihi).toLocaleString("tr-TR")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {!loadingHistory && history.length === 0 && selectedPlayerId && (
-            <div className="mt-4 text-gray-500 text-sm">
-              Bu oyuncu için henüz rating geçmişi bulunamadı.
-            </div>
-          )}
-        </div>
-
-        {/* rating tahmini formu */}
-        <div className="bg-white rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-4">
-            Rating Tahmini
-          </h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Oyuncu Adı
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded-lg px-3 py-2"
-                placeholder="Örn: Lionel Messi"
-                value={playerName}
-                onChange={handlePlayerNameChange}
-              />
-            </div>
             {/* 🔄 DEĞİŞTİRİLDİ: Eski tek alan yerine mac ve dakika ayrı alanlar */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -290,20 +191,6 @@ const Prediction = () => {
                 />
               </div>
             </div>
-            {/* ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Maç Dakikası
-              </label>
-              <input
-                type="number"
-                className="w-full border rounded-lg px-3 py-2"
-                placeholder="Örn: 90"
-                value={macDakikasi}
-                onChange={(e) => setMacDakikasi(e.target.value)}
-              />
-            </div>
-            */}
 
             <div>
               <label className="block text-sm font-medium mb-1">
@@ -378,18 +265,94 @@ const Prediction = () => {
                 <div className="text-xs text-blue-600 mt-1">
                   Attack Score Model V1 ile hesaplandı
                 </div>
+                {/* 🆕 YENİ: Kaydedilme durumu gösteriliyor */}
+                {playerName.trim() && predictionSaved !== null && (
+                  <div className={`text-xs mt-1 ${predictionSaved ? 'text-green-600' : 'text-orange-600'}`}>
+                    {predictionSaved 
+                      ? `✓ ${playerName} için tahmin veritabanına kaydedildi`
+                      : `⚠ ${playerName} için oyuncu bulunamadı, tahmin kaydedilmedi`}
+                  </div>
+                )}
               </div>
             )}
-            {/* ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
-            {manualRating !== null && (
-              <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm">
-                <div className="font-semibold text-blue-800">
-                  Tahmini Rating: {manualRating}/100
-                </div>
-              </div>
-            )}
-            */}
+           
           </div>
+        </div>
+
+        {/* SAĞ TARAF: Oyuncu rating geçmişi */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <h2 className="text-lg font-semibold mb-4">Oyuncu Rating Geçmişi</h2>
+
+          {/* Oyuncu seçimi */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">
+              Oyuncu Seç
+            </label>
+            {loadingPlayers ? (
+              <div>Oyuncular yükleniyor...</div>
+            ) : (
+              <select
+                value={selectedPlayerId ?? ""}
+                onChange={handleSelectChange}
+                className="border rounded-lg px-3 py-2 w-full"
+              >
+                <option value="">Bir oyuncu seçin</option>
+                {players.map((p) => (
+                  <option key={p.oyuncuid} value={p.oyuncuid}>
+                    {p.adsoyad}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Geçmişi yükle butonu */}
+          <button
+            onClick={handleLoadHistory}
+            disabled={!selectedPlayerId || loadingHistory}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            {loadingHistory ? "Yükleniyor..." : "Rating Geçmişini Göster"}
+          </button>
+
+          {/* Geçmiş tablosu */}
+          {history.length > 0 && (
+            <div className="mt-6 overflow-x-auto rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="p-3 text-left">Tahmin ID</th>
+                    <th className="p-3 text-left">Rating</th>
+                    <th className="p-3 text-left">Tarih</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((h) => (
+                    <tr key={h.tahminid} className="border-t">
+                      <td className="p-3">{h.tahminid}</td>
+                      <td className="p-3">
+                        {h.rating
+                          ? Number(h.rating).toFixed(1)
+                          : h.golkraliolasiligi
+                          ? (Number(h.golkraliolasiligi) * 100).toFixed(1)
+                          : "N/A"}
+                        /100
+                      </td>
+                      <td className="p-3 text-gray-500">
+                        {new Date(h.tahmintarihi).toLocaleString("tr-TR")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!loadingHistory && history.length === 0 && selectedPlayerId && (
+            <div className="mt-4 text-gray-500 text-sm">
+              Bu oyuncu için henüz rating geçmişi bulunamadı.
+            </div>
+          )}
         </div>
       </div>
     </div>
