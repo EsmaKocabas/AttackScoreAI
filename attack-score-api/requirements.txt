@@ -1,0 +1,10 @@
+flask==3.0.0
+# 🆕 YENİ: CORS desteği için eklendi
+flask-cors==4.0.0
+# 🔄 DEĞİŞTİRİLDİ: numpy versiyonu güncellendi (Python 3.14 uyumluluğu için)
+numpy>=1.26.0
+pandas>=2.0.3
+joblib>=1.3.2
+scikit-learn>=1.3.0
+
+

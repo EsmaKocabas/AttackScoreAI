@@ -113,7 +113,7 @@ export const getAllPredictions = async (req, res) => {
 };
 
 /* ======================================================
-   4️⃣ ADMIN – TÜM PREDICTION’LAR (FİLTRELİ)
+   4️⃣ ADMIN – TÜM PREDICTION'LAR (FİLTRELİ)
    GET /api/predictions/admin/filtered
    Query Params:
      - oyuncuAdi
@@ -134,6 +134,45 @@ export const getAllPredictionsFiltered = async (req, res) => {
       success: true,
       count: predictions.length,
       data: predictions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// 🆕 YENİ: Manuel prediction controller eklendi
+/* ======================================================
+   5️⃣ MANUEL RATING TAHMİNİ (VERİTABANINA KAYDETMEZ)
+   POST /api/predictions/manual
+   Body: { mac, dakika, xg, sut90, isabetliSut90 }
+====================================================== */
+export const predictManual = async (req, res) => {
+  try {
+    const { mac, dakika, xg, sut90, isabetliSut90 } = req.body;
+
+    // Validasyon
+    if (mac === undefined || dakika === undefined || xg === undefined || 
+        sut90 === undefined || isabetliSut90 === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "Tüm alanlar zorunludur: mac, dakika, xg, sut90, isabetliSut90",
+      });
+    }
+
+    const prediction = await PredictionService.predictManual({
+      mac,
+      dakika,
+      xg,
+      sut90,
+      isabetliSut90,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: prediction,
     });
   } catch (error) {
     return res.status(500).json({
