@@ -1,10 +1,6 @@
 import PredictionService from "../../services/prediction.service.js";
 
-/* ======================================================
-   1️⃣ OYUNCU İÇİN YENİ PREDICTION OLUŞTUR
-   POST /api/predictions
-   Body: { playerId }
-====================================================== */
+//POST /api/predictions
 export const createPrediction = async (req, res) => {
   try {
     const { playerId } = req.body;
@@ -30,10 +26,7 @@ export const createPrediction = async (req, res) => {
   }
 };
 
-/* ======================================================
-   2️⃣ OYUNCU İÇİN YENİ RATING OLUŞTUR VE DÖNDÜR
-   GET /api/predictions/player/:playerId
-====================================================== */
+// GET /api/predictions/player/:playerId
 export const getPredictionForPlayer = async (req, res) => {
   try {
     const { playerId } = req.params;
@@ -59,10 +52,7 @@ export const getPredictionForPlayer = async (req, res) => {
   }
 };
 
-/* ======================================================
-   3️⃣ OYUNCU BAZLI PREDICTION GEÇMİŞİ
-   GET /api/predictions/history/player/:playerId
-====================================================== */
+//GET /api/predictions/history/player/:playerId
 export const getPredictionHistoryForPlayer = async (req, res) => {
   try {
     const { playerId } = req.params;
@@ -91,10 +81,7 @@ export const getPredictionHistoryForPlayer = async (req, res) => {
   }
 };
 
-/* ======================================================
-   3️⃣ ADMIN – TÜM PREDICTION’LAR (FİLTRESİZ)
-   GET /api/predictions/admin/all
-====================================================== */
+//GET /api/predictions/admin/all
 export const getAllPredictions = async (req, res) => {
   try {
     const predictions = await PredictionService.getAllPredictions();
@@ -112,14 +99,7 @@ export const getAllPredictions = async (req, res) => {
   }
 };
 
-/* ======================================================
-   4️⃣ ADMIN – TÜM PREDICTION'LAR (FİLTRELİ)
-   GET /api/predictions/admin/filtered
-   Query Params:
-     - oyuncuAdi
-     - startDate
-     - endDate
-====================================================== */
+//GET /api/predictions/admin/filtered
 export const getAllPredictionsFiltered = async (req, res) => {
   try {
     const { oyuncuAdi, startDate, endDate } = req.query;
@@ -143,17 +123,11 @@ export const getAllPredictionsFiltered = async (req, res) => {
   }
 };
 
-// 🆕 YENİ: Manuel prediction controller eklendi
-/* ======================================================
-   5️⃣ MANUEL RATING TAHMİNİ (VERİTABANINA KAYDETMEZ)
-   POST /api/predictions/manual
-   Body: { mac, dakika, xg, sut90, isabetliSut90 }
-====================================================== */
+//POST /api/predictions/manual
 export const predictManual = async (req, res) => {
   try {
-    const { mac, dakika, xg, sut90, isabetliSut90 } = req.body;
+    const { mac, dakika, xg, sut90, isabetliSut90, oyuncuAdi, oyuncuId } = req.body;
 
-    // Validasyon
     if (mac === undefined || dakika === undefined || xg === undefined || 
         sut90 === undefined || isabetliSut90 === undefined) {
       return res.status(400).json({
@@ -168,6 +142,8 @@ export const predictManual = async (req, res) => {
       xg,
       sut90,
       isabetliSut90,
+      oyuncuAdi,
+      oyuncuId, 
     });
 
     return res.status(200).json({

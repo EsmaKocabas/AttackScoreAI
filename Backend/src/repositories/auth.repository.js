@@ -27,8 +27,16 @@ class AuthRepository {
         return rows[0];
     }
     async getAllUsers() {
+        // Güvenli view kullanarak maskelenmiş kullanıcı bilgilerini getir
         const { rows } = await db.query(
-            `SELECT * FROM appkullanicilar`
+            `SELECT 
+                AppUserID AS appuserid,
+                KullaniciAdi AS kullaniciadi,
+                Rol AS rol,
+                MaskeliEmail AS email,
+                SifreDurumu AS sifredurumu
+            FROM vw_GuvenliKullaniciListesi
+            ORDER BY AppUserID`
         );
         return rows;
     }

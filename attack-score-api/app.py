@@ -6,7 +6,14 @@ import joblib  # pyright: ignore[reportMissingImports]
 import os  # pyright: ignore[reportMissingImports]
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# CORS ayarları - tüm origin'lere izin ver
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 
 model_path = os.path.join(os.path.dirname(__file__), 'final_lasso_attack_score_model.pkl')
@@ -45,4 +52,5 @@ def predict():
         return jsonify({"error": f"Hata: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=True, host='0.0.0.0', port=port)

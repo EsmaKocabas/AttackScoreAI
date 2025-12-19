@@ -40,10 +40,10 @@ class PredictionService {
   // 🆕 YENİ: Manuel prediction metodu eklendi
   /**
    * Manuel olarak girilen verilerle attack score tahmini yapar
-   * Database'e kaydetmez, sadece tahmin döner
+   * Eğer oyuncuAdi veya oyuncuId verilirse, tahmini veritabanına kaydeder
    */
-  async predictManual({ mac, dakika, xg, sut90, isabetliSut90 }) {
-    const ATTACK_SCORE_API_URL = process.env.ATTACK_SCORE_API_URL || "http://localhost:5000";
+  async predictManual({ mac, dakika, xg, sut90, isabetliSut90, oyuncuAdi, oyuncuId }) {
+    const ATTACK_SCORE_API_URL = process.env.ATTACK_SCORE_API_URL || "http://localhost:5001";
     
     // 🆕 YENİ: Timeout ayarı eklendi
     const axiosConfig = {
@@ -80,10 +80,41 @@ class PredictionService {
       // Attack score zaten 0-100 arasında, sadece güvenlik kontrolü yap
       const rating = Math.max(0, Math.min(100, Math.round(parseFloat(attackScore) * 10) / 10));
 
+      // 🆕 YENİ: Eğer oyuncu bilgisi verilmişse, tahmini veritabanına kaydet
+      let savedPrediction = null;
+      if (oyuncuId || oyuncuAdi) {
+        try {
+          let oyuncu = null;
+          
+          // Önce ID ile ara, yoksa isim ile ara
+          if (oyuncuId) {
+            oyuncu = await playerRepository.findById(oyuncuId);
+          } else if (oyuncuAdi) {
+            oyuncu = await playerRepository.findByName(oyuncuAdi);
+          }
+
+          if (oyuncu) {
+            // Rating'i 0-1 aralığına normalize et (veritabanı formatı)
+            const normalizedRating = rating / 100;
+            savedPrediction = await predictionRepository.savePrediction(
+              oyuncu.oyuncuid,
+              normalizedRating
+            );
+          } else {
+            console.warn(`Oyuncu bulunamadı: ${oyuncuId || oyuncuAdi}. Tahmin kaydedilmedi.`);
+          }
+        } catch (dbError) {
+          console.error("Tahmin kaydedilirken hata oluştu:", dbError);
+          // DB hatası olsa bile tahmin sonucunu döndür
+        }
+      }
+
       return {
         rating: rating,
         attackScore: attackScore,
         model: "ATTACK_SCORE_MODEL_V1",
+        saved: savedPrediction !== null,
+        prediction: savedPrediction,
       };
     } catch (error) {
       console.error("Attack Score API hatası:", error);

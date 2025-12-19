@@ -6,8 +6,8 @@ interface Prediction {
   tahminid: number;
   oyuncuid: number;
   adsoyad: string;
-  rating: number;
-  golkraliolasiligi?: number; // Backward compatibility
+  rating: number | string; // Backend'den string olarak gelebilir
+  golkraliolasiligi?: number | string; // Backward compatibility
   tahmintarihi: string;
 }
 
@@ -51,7 +51,11 @@ const ManagePredictions = () => {
                     <td className="p-3">{p.tahminid}</td>
                     <td className="p-3 font-medium">{p.adsoyad}</td>
                     <td className="p-3">
-                      {p.rating ? p.rating.toFixed(1) : (p.golkraliolasiligi ? (p.golkraliolasiligi * 100).toFixed(1) : 'N/A')}/100
+                      {p.rating !== null && p.rating !== undefined
+                        ? Number(p.rating).toFixed(1) 
+                        : (p.golkraliolasiligi !== null && p.golkraliolasiligi !== undefined
+                          ? (Number(p.golkraliolasiligi) * 100).toFixed(1) 
+                          : 'N/A')}/100
                     </td>
                     <td className="p-3 text-gray-500">
                       {new Date(p.tahmintarihi).toLocaleString("tr-TR")}
