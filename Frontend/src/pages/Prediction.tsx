@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { getPredictionHistoryForPlayer } from "../api/prediction.api";
+// 🆕 YENİ: predictManual eklendi
+import { getPredictionHistoryForPlayer, predictManual } from "../api/prediction.api";
 
 interface Player {
   oyuncuid: number;
@@ -25,11 +26,17 @@ const Prediction = () => {
 
   //rating tahmini formu için stateler
   const [playerName, setPlayerName] = useState<string>("");
-  const [macDakikasi, setMacDakikasi] = useState<string>("");
+  // 🆕 YENİ: mac ve dakika ayrı state'ler olarak eklendi
+  const [mac, setMac] = useState<string>("");
+  const [dakika, setDakika] = useState<string>("");
+  // ❌ ESKİ: const [macDakikasi, setMacDakikasi] = useState<string>(""); // Silindi - mac ve dakika ayrıldı
   const [xg, setXg] = useState<string>("");
   const [sut90, setSut90] = useState<string>("");
   const [isabetliSut90, setIsabetliSut90] = useState<string>("");
   const [manualRating, setManualRating] = useState<number | null>(null);
+  // 🆕 YENİ: Loading ve error state'leri eklendi
+  const [loadingPrediction, setLoadingPrediction] = useState(false);
+  const [predictionError, setPredictionError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -62,35 +69,82 @@ const Prediction = () => {
   };
 
   // Tüm alanlar dolu mu kontrolü
+  // 🔄 DEĞİŞTİRİLDİ: macDakikasi yerine mac ve dakika ayrı kontrol ediliyor
   const isManualFormValid =
-    macDakikasi.trim() !== "" &&
+    mac.trim() !== "" &&
+    dakika.trim() !== "" &&
+    // ❌ ESKİ: macDakikasi.trim() !== "" && // Silindi
     xg.trim() !== "" &&
     sut90.trim() !== "" &&
     playerName.trim() !== "" &&
     isabetliSut90.trim() !== "";
 
-  // Basit bir örnek rating hesaplama (UI odaklı, backend'e bağlanabilir)
-  const handleManualPredict = () => {
+  // 🔄 TAMAMEN DEĞİŞTİRİLDİ: Eski basit formül kaldırıldı, gerçek ML API'ye bağlandı
+  // Attack Score API ile gerçek ML modeli kullanarak rating tahmini
+  const handleManualPredict = async () => {
     if (!isManualFormValid) return;
 
-    const mac = Number(macDakikasi) || 0;
-    const xgVal = Number(xg) || 0;
-    const sut = Number(sut90) || 0;
-    const isabetli = Number(isabetliSut90) || 0;
+    setLoadingPrediction(true);
+    setPredictionError(null);
+    setManualRating(null);
 
-    // Örnek, çok basit ve sadece demo amaçlı formül
-    let score =
-      xgVal * 25 +
-      sut * 10 +
-      isabetli * 15 +
-      (mac > 0 ? Math.min(mac, 90) * 0.2 : 0);
+    try {
+      const response = await predictManual({
+        mac: Number(mac) || 0,
+        dakika: Number(dakika) || 0,
+        xg: Number(xg) || 0,
+        sut90: Number(sut90) || 0,
+        isabetliSut90: Number(isabetliSut90) || 0,
+      });
 
-    // 0-100 aralığına sıkıştır
-    if (score > 100) score = 100;
-    if (score < 0) score = 0;
-
-    setManualRating(Number(score.toFixed(1)));
+      if (response.success && response.data) {
+        setManualRating(response.data.rating);
+        setPredictionError(null);
+      } else {
+        setPredictionError("Tahmin yapılamadı");
+      }
+    } catch (error: any) {
+      console.error("Rating tahmini hatası:", error);
+      // 🔄 DEĞİŞTİRİLDİ: Hata mesajını daha detaylı göster
+      const errorMessage = 
+        error?.response?.data?.error || 
+        error?.message || 
+        error?.toString() || 
+        "Rating tahmini yapılırken bir hata oluştu";
+      setPredictionError(errorMessage);
+      setManualRating(null);
+      // ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
+      // setPredictionError(
+      //   error?.response?.data?.error || "Rating tahmini yapılırken bir hata oluştu"
+      // );
+    } finally {
+      setLoadingPrediction(false);
+    }
   };
+
+  // ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
+  // // Basit bir örnek rating hesaplama (UI odaklı, backend'e bağlanabilir)
+  // const handleManualPredict = () => {
+  //   if (!isManualFormValid) return;
+  //
+  //   const mac = Number(macDakikasi) || 0;
+  //   const xgVal = Number(xg) || 0;
+  //   const sut = Number(sut90) || 0;
+  //   const isabetli = Number(isabetliSut90) || 0;
+  //
+  //   // Örnek, çok basit ve sadece demo amaçlı formül
+  //   let score =
+  //     xgVal * 25 +
+  //     sut * 10 +
+  //     isabetli * 15 +
+  //     (mac > 0 ? Math.min(mac, 90) * 0.2 : 0);
+  //
+  //   // 0-100 aralığına sıkıştır
+  //   if (score > 100) score = 100;
+  //   if (score < 0) score = 0;
+  //
+  //   setManualRating(Number(score.toFixed(1)));
+  // };
 
   const handleLoadHistory = async () => {
     if (!selectedPlayerId) return;
@@ -208,6 +262,35 @@ const Prediction = () => {
                 onChange={handlePlayerNameChange}
               />
             </div>
+            {/* 🔄 DEĞİŞTİRİLDİ: Eski tek alan yerine mac ve dakika ayrı alanlar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Maç Sayısı
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="Örn: 38"
+                  value={mac}
+                  onChange={(e) => setMac(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Toplam Dakika
+                </label>
+                <input
+                  type="number"
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="Örn: 3420"
+                  value={dakika}
+                  onChange={(e) => setDakika(e.target.value)}
+                />
+              </div>
+            </div>
+            {/* ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
             <div>
               <label className="block text-sm font-medium mb-1">
                 Maç Dakikası
@@ -220,6 +303,7 @@ const Prediction = () => {
                 onChange={(e) => setMacDakikasi(e.target.value)}
               />
             </div>
+            */}
 
             <div>
               <label className="block text-sm font-medium mb-1">
@@ -265,14 +349,38 @@ const Prediction = () => {
               </div>
             </div>
 
+            {/* 🔄 DEĞİŞTİRİLDİ: Buton loading state ve disabled durumu eklendi */}
             <button
               onClick={handleManualPredict}
-              disabled={!isManualFormValid}
-              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 w-%50"
+              disabled={!isManualFormValid || loadingPrediction}
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 w-full"
             >
-              Rating Tahmini Yap
+              {loadingPrediction ? "Hesaplanıyor..." : "Rating Tahmini Yap"}
             </button>
+            {/* ❌ ESKİ: className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 w-%50" */}
 
+            {/* 🆕 YENİ: Error gösterimi eklendi */}
+            {predictionError && (
+              <div className="mt-4 bg-red-50 border border-red-100 rounded-lg p-3 text-sm">
+                <div className="font-semibold text-red-800">
+                  Hata: {predictionError}
+                </div>
+              </div>
+            )}
+
+            {/* 🔄 DEĞİŞTİRİLDİ: Model bilgisi eklendi */}
+            {manualRating !== null && !predictionError && (
+              <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm">
+                <div className="font-semibold text-blue-800">
+                  Tahmini Rating: {manualRating}/100
+                </div>
+                {/* 🆕 YENİ: Model bilgisi eklendi */}
+                <div className="text-xs text-blue-600 mt-1">
+                  Attack Score Model V1 ile hesaplandı
+                </div>
+              </div>
+            )}
+            {/* ❌ ESKİ KOD - SİLİNEBİLİR (Yorum satırına alındı):
             {manualRating !== null && (
               <div className="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm">
                 <div className="font-semibold text-blue-800">
@@ -280,6 +388,7 @@ const Prediction = () => {
                 </div>
               </div>
             )}
+            */}
           </div>
         </div>
       </div>

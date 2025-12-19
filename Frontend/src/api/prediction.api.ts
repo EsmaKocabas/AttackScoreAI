@@ -13,3 +13,15 @@ export const getPredictionHistoryForPlayer = async (playerId: number) => {
   );
   return res.data;
 };
+
+// 🆕 YENİ: Manuel prediction API fonksiyonu eklendi
+export const predictManual = async (data: {
+  mac: number;
+  dakika: number;
+  xg: number;
+  sut90: number;
+  isabetliSut90: number;
+}) => {
+  const res = await axiosInstance.post("/api/predictions/manual", data);
+  return res.data;
+};
