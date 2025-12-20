@@ -16,7 +16,7 @@ CORS(app, resources={
 })
 
 
-model_path = os.path.join(os.path.dirname(__file__), 'final_lasso_attack_score_model.pkl')
+model_path = os.path.join(os.path.dirname(__file__), 'final_attack_score_model.pkl')
 model = joblib.load(model_path)
 
 FEATURES = ['Mac', 'Dakika', 'xG', 'Sut/90', 'Isabetli_Sut/90']
