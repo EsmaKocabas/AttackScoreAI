@@ -16,6 +16,18 @@ class AuthService{
     async getAllUsers(){
         return await authRepository.getAllUsers();
     }
+
+    async findById(appUserId){
+        return await authRepository.findById(appUserId);
+    }
+
+    async updateUser(appUserId, updateData){
+        return await authRepository.updateUser(appUserId, updateData);
+    }
+
+    async deleteUser(appUserId){
+        return await authRepository.deleteUser(appUserId);
+    }
 }
 
 export default new AuthService();
